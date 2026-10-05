@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import About from './pages/About';
 import Project from './pages/Project';
@@ -18,12 +17,8 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Admin route — no Navbar, requires admin role */}
-        <Route path="/admin" element={
-          <ProtectedRoute requireAdmin={true}>
-            <Admin />
-          </ProtectedRoute>
-        } />
+        {/* Admin route — standalone, handles its own login */}
+        <Route path="/admin" element={<Admin />} />
 
         {/* All other routes — with Navbar */}
         <Route path="*" element={
@@ -40,11 +35,7 @@ export default function App() {
               <Route path="/project/cctv-specialist" element={<CCTVSpecialist />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </>
         } />
