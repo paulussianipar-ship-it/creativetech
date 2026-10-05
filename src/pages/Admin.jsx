@@ -61,13 +61,13 @@ function AdminLoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             {/* Email */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', color: '#c4b5fd', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Email Admin</label>
               <input
                 type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                placeholder="admin@email.com"
+                autoComplete="off" placeholder="Masukkan email"
                 style={{
                   width: '100%', padding: '11px 14px', borderRadius: 10,
                   border: '1.5px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)',
@@ -84,7 +84,7 @@ function AdminLoginForm() {
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPass ? 'text' : 'password'} value={password}
-                  onChange={e => setPassword(e.target.value)} required placeholder="••••••••"
+                  onChange={e => setPassword(e.target.value)} required autoComplete="new-password" placeholder="Masukkan password"
                   style={{
                     width: '100%', padding: '11px 42px 11px 14px', borderRadius: 10,
                     border: '1.5px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)',
