@@ -1,52 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { fetchProjects } from '../lib/api';
+import { useStoreSync } from '../lib/useStoreSync';
+
+// Mapping category key dari API ke label tampilan & route
+const CATEGORY_MAP = {
+  design:   { label: 'Creative Design',  route: '/project/creative-design',  icon: 'fa-palette',   img: '/assets/images/slides/slide1.jpg', tags: ['Adobe Illustrator', 'Adobe Photoshop', 'Adobe InDesign', 'Canva'] },
+  media:    { label: 'Multimedia',        route: '/project/multimedia',        icon: 'fa-film',      img: '/assets/images/slides/slide2.jpg', tags: ['Adobe Premiere Pro', 'Adobe After Effects', 'DaVinci Resolve', 'Blender'] },
+  it:       { label: 'IT Consultant',     route: '/project/it-solution',       icon: 'fa-headset',   img: '/assets/images/slides/slide3.jpg', tags: ['IT Infrastructure Audit', 'Cloud Architecture', 'Docker', 'Linux'] },
+  web:      { label: 'Web Development',   route: '/project/web-development',   icon: 'fa-code',      img: '/assets/images/image1.png',        tags: ['JavaScript', 'PHP', 'Laravel', 'MySQL'] },
+  security: { label: 'CCTV Specialist',   route: '/project/cctv-specialist',   icon: 'fa-video',     img: '/assets/images/image2.png',        tags: ['IP Camera', 'NVR Setup', 'CCTV Remote Viewing', 'Network Cabling'] },
+};
+
+const FILTER_CATEGORIES = [
+  { key: 'all',      label: 'Semua Proyek' },
+  { key: 'design',   label: 'Creative Design' },
+  { key: 'media',    label: 'Multimedia' },
+  { key: 'it',       label: 'IT Consultant' },
+  { key: 'web',      label: 'Web Development' },
+  { key: 'security', label: 'CCTV Specialist' },
+];
+
+const DEFAULT_PROJECTS = [
+  { id: 'default-1', title: 'Creative Design', category: 'design',   description: 'Desain identitas visual, branding, dan materi promosi yang konsisten untuk membangun citra merek yang kuat dan mudah diingat.', image_url: null },
+  { id: 'default-2', title: 'Multimedia',       category: 'media',    description: 'Produksi konten multimedia interaktif: video promosi, motion graphic, animasi 3D, serta konten sosial media.', image_url: null },
+  { id: 'default-3', title: 'IT Consultant',    category: 'it',       description: 'Konsultasi teknologi menyeluruh mulai dari audit infrastruktur, perancangan arsitektur, hingga migrasi aplikasi.', image_url: null },
+  { id: 'default-4', title: 'Web Development',  category: 'web',      description: 'Pengembangan website dan aplikasi web responsif yang cepat, aman, serta SEO-friendly.', image_url: null },
+  { id: 'default-5', title: 'CCTV Specialist',  category: 'security', description: 'Instalasi dan konfigurasi sistem CCTV untuk keamanan rumah, ruko, maupun kantor.', image_url: null },
+];
 
 export default function Project() {
   const [activeFilter, setActiveFilter] = useState('all');
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const projects = [
-    {
-      id: 'cd000001-0000-4000-8000-000000000001',
-      category: 'Creative Design',
-      img: '/assets/images/slides/slide1.jpg',
-      title: 'Creative Design',
-      desc: 'Desain identitas visual, branding, dan materi promosi yang konsisten untuk membangun citra merek yang kuat dan mudah diingat.',
-      tags: ['Adobe Illustrator', 'Adobe Photoshop', 'Adobe InDesign', 'Canva']
-    },
-    {
-      id: 'cd000002-0000-4000-8000-000000000002',
-      category: 'Multimedia',
-      img: '/assets/images/slides/slide2.jpg',
-      title: 'Multimedia',
-      desc: 'Produksi konten multimedia interaktif: video promosi, motion graphic, animasi 3D, serta konten sosial media yang relevan untuk berbagai platform.',
-      tags: ['Adobe Premiere Pro', 'Adobe After Effects', 'DaVinci Resolve', 'Blender']
-    },
-    {
-      id: 'cd000003-0000-4000-8000-000000000003',
-      category: 'IT Consultant',
-      img: '/assets/images/slides/slide3.jpg',
-      title: 'IT Consultant',
-      desc: 'Konsultasi teknologi menyeluruh mulai dari audit infrastruktur, perancangan arsitektur, hingga migrasi aplikasi legacy ke stack modern.',
-      tags: ['IT Infrastructure Audit', 'Cloud Architecture', 'Docker', 'Linux']
-    },
-    {
-      id: 'cd000004-0000-4000-8000-000000000004',
-      category: 'Web Development',
-      img: '/assets/images/image1.png',
-      title: 'Web Development',
-      desc: 'Pengembangan website dan aplikasi web responsif yang cepat, aman, serta SEO-friendly, dari landing page hingga dashboard dinamis dengan CMS.',
-      tags: ['JavaScript', 'PHP', 'Laravel', 'MySQL']
-    },
-    {
-      id: 'cd000005-0000-4000-8000-000000000005',
-      category: 'CCTV Specialist',
-      img: '/assets/images/image2.png',
-      title: 'CCTV Specialist',
-      desc: 'Instalasi dan konfigurasi sistem CCTV untuk keamanan rumah, ruko, maupun kantor, termasuk perekaman jarak jauh dan akses tampilan real-time.',
-      tags: ['IP Camera', 'NVR Setup', 'CCTV Remote Viewing', 'Network Cabling']
+  const load = useCallback(async () => {
+    const { data } = await fetchProjects({ status: 'published', pageSize: 50 });
+    if (data && data.length > 0) {
+      setProjects(data);
+    } else {
+      setProjects(DEFAULT_PROJECTS);
     }
-  ];
+    setLoading(false);
+  }, []);
 
-  const filteredProjects = activeFilter === 'all' ? projects : projects.filter(p => p.category === activeFilter);
+  useEffect(() => {
+    load();
+  }, [load]);
+  useStoreSync(load);
+
+  const filteredProjects = activeFilter === 'all'
+    ? projects
+    : projects.filter(p => p.category === activeFilter);
 
   return (
     <>
@@ -67,39 +72,77 @@ export default function Project() {
           <div className="container">
             {/* Category Filter Buttons */}
             <div className="filter-controls" id="projectFilters">
-              <button className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => setActiveFilter('all')}>Semua Proyek (5)</button>
-              <button className={`filter-btn ${activeFilter === 'Creative Design' ? 'active' : ''}`} onClick={() => setActiveFilter('Creative Design')}>Creative Design</button>
-              <button className={`filter-btn ${activeFilter === 'Multimedia' ? 'active' : ''}`} onClick={() => setActiveFilter('Multimedia')}>Multimedia</button>
-              <button className={`filter-btn ${activeFilter === 'IT Consultant' ? 'active' : ''}`} onClick={() => setActiveFilter('IT Consultant')}>IT Consultant</button>
-              <button className={`filter-btn ${activeFilter === 'Web Development' ? 'active' : ''}`} onClick={() => setActiveFilter('Web Development')}>Web Development</button>
-              <button className={`filter-btn ${activeFilter === 'CCTV Specialist' ? 'active' : ''}`} onClick={() => setActiveFilter('CCTV Specialist')}>CCTV Specialist</button>
-            </div>
-
-            {/* Projects Cards Grid */}
-            <div className="projects-grid" id="projectsGrid">
-              {filteredProjects.map((project) => (
-                <article key={project.id} className="glass-card project-card" data-category={project.category} tabIndex="0" role="button" aria-label={`Lihat detail ${project.category}`}>
-                  <div className="project-img-box">
-                    <img src={project.img} alt={project.category} loading="lazy" />
-                    <span className="project-badge">{project.category}</span>
-                    <div className="project-overlay">
-                      <span className="btn btn-primary btn-sm">
-                        <i className="fa-solid fa-expand"></i> Detail Proyek
-                      </span>
-                    </div>
-                  </div>
-                  <div className="project-body">
-                    <h3 className="project-title">{project.title}</h3>
-                    <p className="project-snippet">{project.desc}</p>
-                    <div className="project-tags">
-                      {project.tags.map(tag => (
-                        <span key={tag} className="tag">{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                </article>
+              {FILTER_CATEGORIES.map(cat => (
+                <button
+                  key={cat.key}
+                  className={`filter-btn ${activeFilter === cat.key ? 'active' : ''}`}
+                  onClick={() => setActiveFilter(cat.key)}
+                >
+                  {cat.label}{cat.key === 'all' && !loading ? ` (${projects.length})` : ''}
+                </button>
               ))}
             </div>
+
+            {/* Loading State */}
+            {loading && (
+              <div style={{ textAlign: 'center', padding: '4rem 0', color: '#6b7280' }}>
+                <i className="fa-solid fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '1rem', display: 'block' }}></i>
+                Memuat proyek...
+              </div>
+            )}
+
+            {/* Projects Cards Grid */}
+            {!loading && (
+              filteredProjects.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem 0', color: '#6b7280' }}>
+                  <i className="fa-solid fa-folder-open" style={{ fontSize: '2rem', marginBottom: '1rem', display: 'block' }}></i>
+                  <p>Belum ada proyek pada kategori ini.</p>
+                </div>
+              ) : (
+                <div className="projects-grid" id="projectsGrid">
+                  {filteredProjects.map((project) => {
+                    const catInfo = CATEGORY_MAP[project.category] || CATEGORY_MAP['design'];
+                    const imgSrc = project.image_url || (project.images && project.images[0]) || catInfo.img;
+                    const tags = catInfo.tags;
+
+                    return (
+                      <Link
+                        key={project.id}
+                        to={project.slug ? `/project/${project.slug}` : catInfo.route}
+                        style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                      >
+                        <article
+                          className="glass-card project-card"
+                          data-category={catInfo.label}
+                          tabIndex="0"
+                          role="article"
+                          aria-label={`Lihat detail ${catInfo.label}`}
+                        >
+                          <div className="project-img-box">
+                            <img src={imgSrc} alt={catInfo.label} loading="lazy" />
+                            <span className="project-badge">{catInfo.label}</span>
+                            <div className="project-overlay">
+                              <span className="btn btn-primary btn-sm">
+                                <i className="fa-solid fa-expand"></i> Detail Proyek
+                              </span>
+                            </div>
+                          </div>
+                          <div className="project-body">
+                            <h3 className="project-title">{project.title}</h3>
+                            <p className="project-snippet">{project.description}</p>
+                            <div className="project-tags">
+                              {tags.slice(0, 4).map(tag => (
+                                <span key={tag} className="tag">{tag}</span>
+                              ))}
+                            </div>
+                          </div>
+                        </article>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )
+            )}
           </div>
         </section>
       </main>

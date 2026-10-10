@@ -1,8 +1,29 @@
+import { useState, useEffect, useCallback } from 'react';
+import { fetchContent } from '../lib/api';
+import { useStoreSync } from '../lib/useStoreSync';
+
 export default function About() {
+  const [content, setContent] = useState(null);
+  const [contact, setContact] = useState(null);
+
+  const load = useCallback(async () => {
+    const [aboutResult, contactResult] = await Promise.all([
+      fetchContent('about'),
+      fetchContent('contact'),
+    ]);
+    if (aboutResult.data && aboutResult.data.values) setContent(aboutResult.data.values);
+    if (contactResult.data && contactResult.data.values) setContact(contactResult.data.values);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+  useStoreSync(load);
+
   return (
     <>
       <div className="container">
-        <h1 className="page-banner-title">Tentang <span className="gradient-text">Kami</span></h1>
+        <h1 className="page-banner-title">{content?.title || <><span className="gradient-text">Tentang Kami</span></>}</h1>
         <p className="page-banner-subtitle">
           Mengenal lebih dekat profil profesional kami, spesialisasi keahlian teknis, dan layanan IT & Design yang kami tawarkan.
         </p>
@@ -40,15 +61,15 @@ export default function About() {
                   </div>
                   <div className="biodata-item">
                     <span className="bio-label"><i className="fa-solid fa-location-dot"></i> Lokasi</span>
-                    <span className="bio-value">Bekasi, Jawa Barat, Indonesia</span>
+                    <span className="bio-value">{contact?.address || 'Bekasi, Jawa Barat, Indonesia'}</span>
                   </div>
                   <div className="biodata-item">
                     <span className="bio-label"><i className="fa-solid fa-envelope"></i> Email</span>
-                    <span className="bio-value">paulussianipar@gmail.com</span>
+                    <span className="bio-value">{contact?.email || 'paulussianipar@gmail.com'}</span>
                   </div>
                   <div className="biodata-item">
                     <span className="bio-label"><i className="fa-solid fa-phone"></i> No. Handphone / WA</span>
-                    <span className="bio-value">+62 85162744708 (WA Only)</span>
+                    <span className="bio-value">{contact?.whatsapp || '+62 85162744708 (WA Only)'}</span>
                   </div>
                   <div className="biodata-item">
                     <span className="bio-label"><i className="fa-solid fa-circle-check" style={{ color: 'var(--emerald, #10b981)' }}></i> Status Freelance</span>
@@ -60,12 +81,27 @@ export default function About() {
                 <h3 className="about-heading">
                   Creative Designer &amp; IT Specialist
                 </h3>
-                <p className="about-text">
-                  Saya memfokuskan karir profesional saya untuk membantu perusahaan dan pemangku kepentingan membangun
-                  produk digital berskala industri. Berbekal pemahaman arsitektur perangkat lunak yang matang serta dorongan
-                  estetika visual, saya percaya setiap karya desain dan baris kode harus berdampak langsung pada kecepatan,
-                  kenyamanan, dan kepuasan pengguna.
-                </p>
+                {content?.description ? (
+                  <div className="about-text" dangerouslySetInnerHTML={{ __html: content.description }} />
+                ) : (
+                  <p className="about-text">
+                    Saya memfokuskan karir profesional saya untuk membantu perusahaan dan pemangku kepentingan membangun
+                    produk digital berskala industri. Berbekal pemahaman arsitektur perangkat lunak yang matang serta dorongan
+                    estetika visual, saya percaya setiap karya desain dan baris kode harus berdampak langsung pada kecepatan,
+                    kenyamanan, dan kepuasan pengguna.
+                  </p>
+                )}
+                
+                {content?.vision && (
+                  <div style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>
+                    <strong style={{ color: 'var(--text-color)' }}>Visi:</strong> {content.vision}
+                  </div>
+                )}
+                {content?.mission && (
+                  <div style={{ marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+                    <strong style={{ color: 'var(--text-color)' }}>Misi:</strong> {content.mission}
+                  </div>
+                )}
 
                 {/* Action Buttons Group */}
                 <div style={{ marginTop: '28px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>

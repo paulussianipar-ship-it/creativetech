@@ -2,9 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   1. BRAND TOKENS (website publik — tema gelap)
+   Catatan: token ini milik tema publik. Token shadcn/ui memakai
+   nama --primary, jadi brand publik memakai --brand-primary.
+   ============================================================ */
 :root {
-  --primary: #a855f7;
-  --primary-hover: #9333ea;
+  --brand-primary: #a855f7;
+  --brand-primary-hover: #9333ea;
   --bg-color: #0B0F19;
   --text-color: #f1f5f9;
   --text-muted: #94a3b8;
@@ -13,6 +18,115 @@
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+/* ============================================================
+   2. SHADCN/UI DESIGN TOKENS (Admin Panel — tema terang default)
+   Format: HSL tanpa fungsi hsl() agar bisa pakai <alpha-value>.
+   ============================================================ */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+
+  --primary: 262 83% 58%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --accent: 262 83% 96%;
+  --accent-foreground: 262 83% 40%;
+
+  --destructive: 0 72.2% 50.6%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 32.1 94.6% 43.7%;
+  --warning-foreground: 0 0% 100%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 262 83% 58%;
+
+  --radius: 0.65rem;
+
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 222.2 47.4% 11.2%;
+  --sidebar-primary: 262 83% 58%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 40% 96.1%;
+  --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+  --sidebar-border: 214.3 31.8% 91.4%;
+  --sidebar-ring: 262 83% 58%;
+}
+
+.dark {
+  /* Background senada dengan website: #0b0f19 */
+  --background: 222 47% 6%;
+  --foreground: 210 40% 94%;
+
+  /* Card sedikit lebih terang dari background */
+  --card: 222 47% 9%;
+  --card-foreground: 210 40% 94%;
+
+  --popover: 222 47% 9%;
+  --popover-foreground: 210 40% 94%;
+
+  /* Primary: ungu brand */
+  --primary: 270 75% 65%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 30% 14%;
+  --secondary-foreground: 210 40% 94%;
+
+  --muted: 220 30% 13%;
+  --muted-foreground: 215 20% 60%;
+
+  --accent: 263 40% 18%;
+  --accent-foreground: 263 90% 85%;
+
+  --destructive: 0 62.8% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --success: 142.1 65% 42%;
+  --success-foreground: 0 0% 100%;
+
+  --warning: 32.1 90% 50%;
+  --warning-foreground: 0 0% 100%;
+
+  --border: 220 30% 16%;
+  --input: 220 30% 14%;
+  --ring: 270 75% 65%;
+
+  /* Sidebar: lebih gelap dari card */
+  --sidebar-background: 222 47% 7%;
+  --sidebar-foreground: 210 40% 88%;
+  --sidebar-primary: 270 75% 65%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 30% 14%;
+  --sidebar-accent-foreground: 210 40% 88%;
+  --sidebar-border: 220 30% 14%;
+  --sidebar-ring: 270 75% 65%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}
+
+/* ============================================================
+   3. BASE / RESET
+   ============================================================ */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -20,7 +134,7 @@
 }
 
 body {
-  font-family: 'Outfit', 'Inter', -apple-system, sans-serif;
+  font-family: 'Inter', 'Outfit', -apple-system, sans-serif;
   background-color: var(--bg-color);
   background-image: 
     radial-gradient(circle at 15% 50%, rgba(168, 85, 247, 0.15), transparent 25%),
@@ -30,10 +144,22 @@ body {
   line-height: 1.6;
 }
 
+/* Scope admin (/admin/*): dark mode selaras dengan website publik */
+body.admin-scope {
+  background-color: hsl(var(--background));
+  background-image: none;
+  background-attachment: scroll;
+  color: hsl(var(--foreground));
+}
+
 a {
   text-decoration: none;
   color: inherit;
 }
+
+/* ============================================================
+   4. WEBSITE PUBLIK (kelas legacy, tema gelap)
+   ============================================================ */
 
 .navbar {
   display: flex;
@@ -52,7 +178,7 @@ a {
 .navbar-brand {
   font-size: 1.5rem;
   font-weight: bold;
-  color: var(--primary);
+  color: var(--brand-primary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -70,7 +196,7 @@ a {
 }
 
 .nav-links a:hover {
-  color: var(--primary);
+  color: var(--brand-primary);
 }
 
 .btn {
@@ -83,12 +209,12 @@ a {
 }
 
 .btn-primary {
-  background-color: var(--primary);
+  background-color: var(--brand-primary);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover);
+  background-color: var(--brand-primary-hover);
 }
 
 .btn-outline {
@@ -136,12 +262,6 @@ a {
   box-shadow: var(--glass-shadow);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
 .form-group {
   margin-bottom: 1rem;
 }
@@ -162,7 +282,7 @@ a {
 
 .form-group input:focus, .form-group textarea:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--brand-primary);
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
@@ -179,7 +299,7 @@ a {
   margin-bottom: 1rem;
 }
 .gradient-text {
-  background: linear-gradient(to right, var(--primary), #a855f7);
+  background: linear-gradient(to right, var(--brand-primary), #a855f7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -197,10 +317,10 @@ a {
   color: var(--text-muted);
 }
 .breadcrumb a:hover {
-  color: var(--primary);
+  color: var(--brand-primary);
 }
 .current {
-  color: var(--primary);
+  color: var(--brand-primary);
   font-weight: 500;
 }
 .about-grid {
@@ -267,7 +387,7 @@ a {
 }
 .section-subtitle {
   display: block;
-  color: var(--primary);
+  color: var(--brand-primary);
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -319,7 +439,7 @@ a {
 }
 .skill-percentage {
   font-weight: bold;
-  color: var(--primary);
+  color: var(--brand-primary);
 }
 .skill-bar-bg {
   height: 8px;
@@ -329,7 +449,7 @@ a {
 }
 .skill-bar-fill {
   height: 100%;
-  background: linear-gradient(to right, var(--primary), #a855f7);
+  background: linear-gradient(to right, var(--brand-primary), #a855f7);
   border-radius: 4px;
 }
 .text-center {
@@ -355,12 +475,12 @@ a {
 }
 .filter-btn:hover {
   background: var(--bg-color);
-  border-color: var(--primary);
+  border-color: var(--brand-primary);
 }
 .filter-btn.active {
-  background: var(--primary);
+  background: var(--brand-primary);
   color: white;
-  border-color: var(--primary);
+  border-color: var(--brand-primary);
 }
 .projects-grid {
   display: grid;
@@ -510,7 +630,7 @@ a {
   gap: 0.5rem;
   padding: 0.25rem 0.75rem;
   background: rgba(37, 99, 235, 0.1);
-  color: var(--primary);
+  color: var(--brand-primary);
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -563,7 +683,7 @@ a {
   margin-bottom: 0.25rem;
 }
 .contact-card-value a:hover {
-  color: var(--primary);
+  color: var(--brand-primary);
   text-decoration: underline;
 }
 .sub-text {
@@ -609,8 +729,8 @@ a {
 }
 .social-pill-btn:hover {
   background: var(--bg-color);
-  color: var(--primary);
-  border-color: var(--primary);
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
 }
 .form-wrapper-modern {
   padding: 32px;
@@ -665,12 +785,12 @@ a {
   transition: all 0.2s;
 }
 .topic-chip:hover {
-  border-color: var(--primary);
+  border-color: var(--brand-primary);
 }
 .topic-chip.active {
   background: rgba(37, 99, 235, 0.1);
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
   font-weight: 500;
 }
 .contact-form .form-row {
@@ -708,7 +828,7 @@ a {
 }
 .form-input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--brand-primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 .form-textarea {

@@ -1,8 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchContent } from '../lib/api';
+import { useStoreSync } from '../lib/useStoreSync';
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [content, setContent] = useState(null);
   const slides = [
     "./assets/images/slides/slide1.jpg",
     "./assets/images/slides/slide2.jpg",
@@ -16,7 +19,15 @@ export default function Home() {
   useEffect(() => {
     const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
+  }, [slides.length]);
+
+  const load = useCallback(async () => {
+    const { data } = await fetchContent('home');
+    if (data && data.values) setContent(data.values);
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useStoreSync(load);
 
   return (
     <div className="home-page-wrapper">
@@ -29,8 +40,12 @@ export default function Home() {
           </div>
 
           <h1 className="hero-title" style={{ fontSize: '3rem', fontWeight: 800, lineHeight: 1.2, marginBottom: '1.5rem' }}>
-            Membangun Solusi Digital <br />
-            <span className="gradient-text" style={{ background: 'linear-gradient(to right, var(--primary), #8b5cf6)', WebkitBackgroundClip: 'text', color: 'transparent' }}>Eksklusif & Skalabel</span>
+            {content?.heroTitle || (
+              <>
+                Membangun Solusi Digital <br />
+                <span className="gradient-text" style={{ background: 'linear-gradient(to right, var(--brand-primary), #8b5cf6)', WebkitBackgroundClip: 'text', color: 'transparent' }}>Eksklusif & Skalabel</span>
+              </>
+            )}
           </h1>
 
           <div className="hero-subtitle" style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 500 }}>
@@ -38,13 +53,12 @@ export default function Home() {
           </div>
 
           <p className="hero-description" style={{ color: '#6b7280', fontSize: '1.125rem', marginBottom: '2rem', lineHeight: 1.6 }}>
-            Menggabungkan keahlian mendalam pada pengembangan Creative Design & Full-Stack Web, arsitektur cloud
-            performa tinggi, serta estetika UI/UX modern untuk menciptakan pengalaman digital terbaik.
+            {content?.heroSubtitle || 'Menggabungkan keahlian mendalam pada pengembangan Creative Design & Full-Stack Web, arsitektur cloud performa tinggi, serta estetika UI/UX modern untuk menciptakan pengalaman digital terbaik.'}
           </p>
 
           <div className="hero-cta-group" style={{ display: 'flex', gap: '1rem', marginBottom: '3rem', flexWrap: 'wrap' }}>
             <Link to="/project" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: 'bold' }}>
-              <i className="fa-solid fa-layer-group" style={{ marginRight: '0.5rem' }}></i> Lihat Portofolio Proyek
+              <i className="fa-solid fa-layer-group" style={{ marginRight: '0.5rem' }}></i> {content?.heroButton || 'Lihat Portofolio Proyek'}
             </Link>
             <Link to="/about" className="btn btn-outline" style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', fontWeight: 'bold', border: '1px solid var(--border-color)' }}>
               <i className="fa-solid fa-user-gear" style={{ marginRight: '0.5rem' }}></i> Tentang Saya
@@ -56,7 +70,7 @@ export default function Home() {
             <div className="stat-item">
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.2rem' }}>
                 <span className="stat-number" style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-color)' }}>34</span>
-                <span className="stat-plus" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>+</span>
+                <span className="stat-plus" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-primary)' }}>+</span>
               </div>
               <div className="stat-label" style={{ fontSize: '0.875rem', color: '#6b7280' }}>Proyek Selesai</div>
             </div>
@@ -64,7 +78,7 @@ export default function Home() {
             <div className="stat-item">
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.2rem' }}>
                 <span className="stat-number" style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-color)' }}>5</span>
-                <span className="stat-plus" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>+</span>
+                <span className="stat-plus" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-primary)' }}>+</span>
               </div>
               <div className="stat-label" style={{ fontSize: '0.875rem', color: '#6b7280' }}>Tahun Pengalaman</div>
             </div>
@@ -72,7 +86,7 @@ export default function Home() {
             <div className="stat-item">
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.2rem' }}>
                 <span className="stat-number" style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-color)' }}>99</span>
-                <span className="stat-plus" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary)' }}>%</span>
+                <span className="stat-plus" style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--brand-primary)' }}>%</span>
               </div>
               <div className="stat-label" style={{ fontSize: '0.875rem', color: '#6b7280' }}>Satisfaction Rate</div>
             </div>
@@ -120,7 +134,7 @@ export default function Home() {
                   type="button" 
                   onClick={() => setCurrentSlide(index)}
                   className={`hero-slide-dot ${index === currentSlide ? 'active' : ''}`} 
-                  style={{ width: '10px', height: '10px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: index === currentSlide ? 'var(--primary)' : 'rgba(255,255,255,0.5)' }}
+                  style={{ width: '10px', height: '10px', borderRadius: '50%', border: 'none', cursor: 'pointer', background: index === currentSlide ? 'var(--brand-primary)' : 'rgba(255,255,255,0.5)' }}
                 ></button>
               ))}
             </div>
@@ -149,32 +163,35 @@ export default function Home() {
       <section className="home-teasers" style={{ padding: '80px 0', background: 'var(--bg-color)' }}>
         <div className="container">
           <div className="section-title-wrap text-center" style={{ marginBottom: '3rem' }}>
-            <span className="section-subtitle" style={{ color: 'var(--primary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Eksplorasi Portfolio</span>
+            <span className="section-subtitle" style={{ color: 'var(--brand-primary)', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>Eksplorasi Portfolio</span>
             <h2 className="section-title" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Halaman & Layanan Utama</h2>
-            <p className="section-description" style={{ margin: '0 auto', maxWidth: '600px', color: '#6b7280' }}>
-              Jelajahi halaman lengkap kami untuk melihat profil, proyek terbaru, serta informasi kontak dan lokasi
-              studio.
-            </p>
+            {content?.aboutTeaser ? (
+              <div className="section-description" style={{ margin: '0 auto', maxWidth: '600px', color: '#6b7280' }} dangerouslySetInnerHTML={{ __html: content.aboutTeaser }} />
+            ) : (
+              <p className="section-description" style={{ margin: '0 auto', maxWidth: '600px', color: '#6b7280' }}>
+                Jelajahi halaman lengkap kami untuk melihat profil, proyek terbaru, serta informasi kontak dan lokasi studio.
+              </p>
+            )}
           </div>
 
           <div className="home-teaser-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
             {/* Card 1: About */}
             <div className="glass-card teaser-card" style={{ padding: '2rem', borderRadius: '1rem', border: '1px solid var(--border-color)', background: 'var(--surface-color)', transition: 'transform 0.3s' }}>
-              <div className="teaser-icon" style={{ fontSize: '2rem', color: 'var(--primary)', marginBottom: '1rem' }}>
+              <div className="teaser-icon" style={{ fontSize: '2rem', color: 'var(--brand-primary)', marginBottom: '1rem' }}>
                 <i className="fa-solid fa-user-gear"></i>
               </div>
               <h3 className="teaser-title" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Tentang Saya (About)</h3>
               <p className="teaser-desc" style={{ color: '#6b7280', marginBottom: '1.5rem', fontSize: '0.875rem', lineHeight: 1.6 }}>
                 Pelajari latar belakang profesional, profil perusahaan, rekam jejak, serta layanan kami.
               </p>
-              <Link to="/about" className="btn btn-outline btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary)', color: 'var(--primary)', textDecoration: 'none' }}>
+              <Link to="/about" className="btn btn-outline btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--brand-primary)', color: 'var(--brand-primary)', textDecoration: 'none' }}>
                 Buka Halaman About <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
 
             {/* Card 2: Projects */}
             <div className="glass-card teaser-card" style={{ padding: '2rem', borderRadius: '1rem', border: '1px solid var(--border-color)', background: 'var(--surface-color)', transition: 'transform 0.3s' }}>
-              <div className="teaser-icon" style={{ fontSize: '2rem', color: 'var(--primary)', marginBottom: '1rem' }}>
+              <div className="teaser-icon" style={{ fontSize: '2rem', color: 'var(--brand-primary)', marginBottom: '1rem' }}>
                 <i className="fa-solid fa-cubes"></i>
               </div>
               <h3 className="teaser-title" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Portofolio Proyek (Project)</h3>
@@ -182,14 +199,14 @@ export default function Home() {
                 Temukan koleksi proyek Web App, Mobile App, dan UI/UX Design modern lengkap dengan filter kategori & modal
                 lightbox detail.
               </p>
-              <Link to="/project" className="btn btn-outline btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary)', color: 'var(--primary)', textDecoration: 'none' }}>
+              <Link to="/project" className="btn btn-outline btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--brand-primary)', color: 'var(--brand-primary)', textDecoration: 'none' }}>
                 Buka Halaman Project <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>
 
             {/* Card 3: Contact */}
             <div className="glass-card teaser-card" style={{ padding: '2rem', borderRadius: '1rem', border: '1px solid var(--border-color)', background: 'var(--surface-color)', transition: 'transform 0.3s' }}>
-              <div className="teaser-icon" style={{ fontSize: '2rem', color: 'var(--primary)', marginBottom: '1rem' }}>
+              <div className="teaser-icon" style={{ fontSize: '2rem', color: 'var(--brand-primary)', marginBottom: '1rem' }}>
                 <i className="fa-solid fa-location-dot"></i>
               </div>
               <h3 className="teaser-title" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Kontak & Lokasi (Contact)</h3>
@@ -197,7 +214,7 @@ export default function Home() {
                 Hubungi Paul via formulir pesan, nomor WhatsApp, email, serta lihat lokasi studio secara presisi pada
                 Google Maps interaktif.
               </p>
-              <Link to="/contact" className="btn btn-outline btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--primary)', color: 'var(--primary)', textDecoration: 'none' }}>
+              <Link to="/contact" className="btn btn-outline btn-sm" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--brand-primary)', color: 'var(--brand-primary)', textDecoration: 'none' }}>
                 Buka Halaman Contact <i className="fa-solid fa-arrow-right"></i>
               </Link>
             </div>

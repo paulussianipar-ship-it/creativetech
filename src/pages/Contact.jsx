@@ -1,18 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
+import { fetchContent, submitContactMessage } from '../lib/api';
+import { useStoreSync } from '../lib/useStoreSync';
 
 export default function Contact() {
   const [topic, setTopic] = useState('Pengembangan Web / App');
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [content, setContent] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = useCallback(async () => {
+    const { data } = await fetchContent('contact');
+    if (data && data.values) setContent(data.values);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+  useStoreSync(load);
 
   const handleTopicClick = (selectedTopic) => {
     setTopic(selectedTopic);
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const text = `Halo Paulus, saya ${formData.name} (${formData.email}).\nTopik: ${topic}\n\nPesan:\n${formData.message}`;
-    const url = `https://wa.me/6285162744708?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+    if (submitting) return;
+    setSubmitting(true);
+    const { error } = await submitContactMessage({
+      name: formData.name,
+      email: formData.email,
+      topic,
+      message: formData.message,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    toast.success('Pesan Anda berhasil dikirim ke sistem kami!');
+    setFormData({ name: '', email: '', message: '' });
   };
 
   return (
@@ -78,7 +105,7 @@ export default function Contact() {
                     </div>
                     <div className="contact-details">
                       <span className="contact-card-label">Alamat Studio / Domisili</span>
-                      <h4 className="contact-card-value">Bekasi, Jawa Barat, Indonesia</h4>
+                      <h4 className="contact-card-value">{content?.address || 'Bekasi, Jawa Barat, Indonesia'}</h4>
                       <span className="sub-text">Tersedia untuk Kerja Remote &amp; Hybrid</span>
                     </div>
                   </div>
@@ -90,7 +117,7 @@ export default function Contact() {
                     </div>
                     <div className="contact-details">
                       <span className="contact-card-label">No. Handphone / WhatsApp Direct</span>
-                      <h4 className="contact-card-value"><a href="https://wa.me/6285162744708" target="_blank" rel="noreferrer">+62 85162744708 (WA Only)</a></h4>
+                      <h4 className="contact-card-value"><a href={`https://wa.me/${(content?.whatsapp || '6285162744708').replace(/\D/g, '')}`} target="_blank" rel="noreferrer">{content?.whatsapp || '+62 85162744708 (WA Only)'}</a></h4>
                       <span className="sub-text" style={{ color: 'var(--emerald, #10b981)', fontWeight: 500 }}>● Online Chat via WhatsApp</span>
                     </div>
                   </div>
@@ -102,7 +129,7 @@ export default function Contact() {
                     </div>
                     <div className="contact-details">
                       <span className="contact-card-label">Email Resmi Studio</span>
-                      <h4 className="contact-card-value"><a href="mailto:paulussianipar@gmail.com">paulussianipar@gmail.com</a></h4>
+                      <h4 className="contact-card-value"><a href={`mailto:${content?.email || 'paulussianipar@gmail.com'}`}>{content?.email || 'paulussianipar@gmail.com'}</a></h4>
                       <span className="sub-text">Kirimkan rincian proyek / proposal</span>
                     </div>
                   </div>
@@ -120,7 +147,7 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <a href="https://wa.me/6285162744708" target="_blank" rel="noreferrer" className="btn btn-emerald w-100 whatsapp-cta-btn">
+                <a href={`https://wa.me/${(content?.whatsapp || '6285162744708').replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="btn btn-emerald w-100 whatsapp-cta-btn">
                   <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.3rem' }}></i>
                   <span>Chat Direct via WhatsApp</span>
                   <i className="fa-solid fa-arrow-right icon-arrow"></i>
@@ -142,10 +169,10 @@ export default function Contact() {
             {/* RIGHT COLUMN: Modern Interactive Form Card */}
             <div className="glass-card form-wrapper-modern">
               <div className="form-header-badge">
-                <span className="badge-quick-tag"><i className="fa-brands fa-whatsapp"></i> Via WhatsApp</span>
+                <span className="badge-quick-tag"><i className="fa-solid fa-paper-plane"></i> Kirim Pesan</span>
                 <h3 className="form-title-modern">Kirim Pesan Langsung</h3>
                 <p className="form-subtitle-modern">
-                  Isi formulir di bawah ini, lalu kirim lewat WhatsApp. Balasan Paulus masuk langsung ke chat Anda.
+                  Isi formulir di bawah ini untuk mengirim pesan. Kami akan membalas pesan Anda sesegera mungkin.
                 </p>
               </div>
 
@@ -201,8 +228,8 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <button type="submit" className="btn btn-emerald btn-lg btn-block submit-btn-modern">
-                  <i className="fa-brands fa-whatsapp"></i> Kirim via WhatsApp
+                <button type="submit" className="btn btn-emerald btn-lg btn-block submit-btn-modern" disabled={submitting}>
+                  <i className={`fa-solid ${submitting ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i> {submitting ? 'Mengirim...' : 'Submit Pesan'}
                 </button>
                 
                 <div className="form-privacy-note">
@@ -217,7 +244,7 @@ export default function Contact() {
           <div className="glass-card maps-container-wrapper" style={{ marginTop: '50px' }}>
             <div className="maps-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px', borderBottom: '1px solid var(--border-color)' }}>
               <div className="maps-title-info" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                <div className="contact-icon" style={{ background: 'rgba(244, 63, 94, 0.15)', color: 'var(--primary)', border: '1px solid rgba(244, 63, 94, 0.3)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="contact-icon" style={{ background: 'rgba(244, 63, 94, 0.15)', color: 'var(--brand-primary)', border: '1px solid rgba(244, 63, 94, 0.3)', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <i className="fa-solid fa-map-location-dot"></i>
                 </div>
                 <div>
@@ -231,7 +258,7 @@ export default function Contact() {
             </div>
 
             <div className="maps-wrapper" style={{ height: '360px', overflow: 'hidden' }}>
-              <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15863.599745942689!2d106.9366402!3d-6.2768852!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e698d125bf98c8d%3A0x97a7268772a6e067!2sClarista%20Promosi!5e0!3m2!1sen!2sid!4v1790405655792!5m2!1sen!2sid" width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Google Maps Location Clarista Promosi">
+              <iframe src={content?.mapUrl || "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15863.599745942689!2d106.9366402!3d-6.2768852!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e698d125bf98c8d%3A0x97a7268772a6e067!2sClarista%20Promosi!5e0!3m2!1sen!2sid!4v1790405655792!5m2!1sen!2sid"} width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Google Maps Location Clarista Promosi">
               </iframe>
             </div>
           </div>

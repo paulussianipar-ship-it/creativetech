@@ -1,9 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { UserCircle, Menu, X, ChevronDown } from 'lucide-react';
+import { fetchSettings } from '../lib/api';
+import { useStoreSync } from '../lib/useStoreSync';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [siteName, setSiteName] = useState('Paul Design & IT Solution');
+
+  const load = useCallback(async () => {
+    const { data } = await fetchSettings();
+    if (data?.siteName) setSiteName(data.siteName);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+  useStoreSync(load);
 
   return (
     <nav className="sticky top-0 z-[100] bg-[#0b0f19cc] backdrop-blur-md border-b border-white/10 w-full">
@@ -14,8 +27,8 @@ export default function Navbar() {
           
           <Link to="/" className="flex items-center">
             <img 
-              src="/assets/images/logo.png" 
-              alt="Paul Design & IT Solution" 
+              src="/assets/images/logo.jpe" 
+              alt={siteName}
               style={{ 
                 height: '60px', // Dikecilkan sedikit dari 75px
                 width: 'auto', 
@@ -53,7 +66,7 @@ export default function Navbar() {
               <div className="bg-[#1e293b] border border-white/10 rounded-lg shadow-xl overflow-hidden flex flex-col py-2">
                 <Link to="/project/creative-design" className="px-4 py-2 hover:bg-primary/20 hover:text-primary transition-colors">Creative Design</Link>
                 <Link to="/project/multimedia" className="px-4 py-2 hover:bg-primary/20 hover:text-primary transition-colors">Multimedia</Link>
-                <Link to="/project/it-solution" className="px-4 py-2 hover:bg-primary/20 hover:text-primary transition-colors">IT Solution</Link>
+                <Link to="/project/it-solution" className="px-4 py-2 hover:bg-primary/20 hover:text-primary transition-colors">IT Consultant</Link>
                 <Link to="/project/web-development" className="px-4 py-2 hover:bg-primary/20 hover:text-primary transition-colors">Web Development</Link>
                 <Link to="/project/cctv-specialist" className="px-4 py-2 hover:bg-primary/20 hover:text-primary transition-colors">CCTV Specialist</Link>
               </div>
@@ -63,7 +76,7 @@ export default function Navbar() {
             <div className="flex flex-col items-center mt-2 space-y-2 md:hidden">
                 <Link to="/project/creative-design" className="text-sm text-gray-300 hover:text-primary transition-colors">Creative Design</Link>
                 <Link to="/project/multimedia" className="text-sm text-gray-300 hover:text-primary transition-colors">Multimedia</Link>
-                <Link to="/project/it-solution" className="text-sm text-gray-300 hover:text-primary transition-colors">IT Solution</Link>
+                <Link to="/project/it-solution" className="text-sm text-gray-300 hover:text-primary transition-colors">IT Consultant</Link>
                 <Link to="/project/web-development" className="text-sm text-gray-300 hover:text-primary transition-colors">Web Development</Link>
                 <Link to="/project/cctv-specialist" className="text-sm text-gray-300 hover:text-primary transition-colors">CCTV Specialist</Link>
             </div>

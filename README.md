@@ -2,7 +2,9 @@
 
 Portal operasional untuk layanan desain dan IT, dibangun dengan React, Vite, dan Supabase.
 
-Halaman publik: `/` (Home), `/about` (About), `/project` (Project), dan `/contact` (Contact). Login/Register tersedia dari ikon di kanan atas; sesi yang berhasil diarahkan ke `/dashboard` dan workspace sesuai role.
+Halaman publik: `/` (Home), `/about` (About), `/project` (Project), `/project/:slug` (detail project hasil kelola admin), dan `/contact` (Contact). Login/Register tersedia dari ikon di kanan atas; sesi yang berhasil diarahkan ke `/dashboard` dan workspace sesuai role.
+
+Portal admin berada di `/admin` (sidebar) dengan menu Ringkasan, Project, Konten Website, Pesan Masuk, Pengguna, Pengaturan, dan Log Aktivitas. Konten/proyek yang diubah admin langsung tampil di website publik, dan pesan dari formulir kontak masuk ke menu **Pesan Masuk**.
 
 ## Jalankan lokal
 
